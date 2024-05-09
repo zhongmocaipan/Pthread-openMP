@@ -1,0 +1,2 @@
+# Pthread-openMP
+nkucs
