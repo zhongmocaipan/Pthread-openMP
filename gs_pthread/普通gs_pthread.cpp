@@ -7,6 +7,7 @@
 #define NUM_THREADS 4  // 假设使用4个线程
 
 double A[N][N + 1];  // 增广矩阵
+pthread_barrier_t barrier;  // 定义 barrier 变量
 
 void* eliminate(void* arg) {
 	int thread_id = *((int*)arg);
@@ -31,6 +32,9 @@ int main() {
 	pthread_t threads[NUM_THREADS];
 	int thread_ids[NUM_THREADS];
 	struct timespec start, end;
+
+	// 初始化 barrier
+	pthread_barrier_init(&barrier, NULL, NUM_THREADS);
 
 	// 初始化增广矩阵A
 	for (int i = 0; i < N; i++) {
@@ -60,6 +64,9 @@ int main() {
 	printf("Total time: %f seconds\n", time_taken); // 输出总时间
 
 	// 打印消元后的矩阵A
+
+	// 销毁 barrier
+	pthread_barrier_destroy(&barrier);
 
 	return 0;
 }
