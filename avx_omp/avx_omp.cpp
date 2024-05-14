@@ -4,7 +4,7 @@
 #include <immintrin.h>
 //#include <unistd.h>
 
-#define N 1000  // 矩阵大小为1000x1000
+#define N 5000  // 矩阵大小为1000x1000
 
 double A[N][N + 1];  // 增广矩阵
 

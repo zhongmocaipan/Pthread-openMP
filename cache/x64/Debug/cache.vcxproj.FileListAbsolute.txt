@@ -1,0 +1,1 @@
+D:\2023大二下\并行实验\pthread\Pthread-openMP\cache\x64\Debug\cache.exe

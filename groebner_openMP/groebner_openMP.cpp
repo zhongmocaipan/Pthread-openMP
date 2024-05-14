@@ -1,73 +1,89 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
+#include <time.h>
 
-#define N 1000  // 假设多项式数量为1000
-#define M 100   // 假设每个多项式最高次数为100
+#define N 1000  // 多项式个数
+#define M 10    // 每个多项式最高次数
 
-// 定义多项式结构体
+// 多项式结构体
 typedef struct {
-	int degree;  // 多项式的最高次数
-	double coefficients[M + 1];  // 系数数组，包含M+1个系数，分别对应0到M次项
+	int degree;       // 多项式次数
+	double coeffs[M]; // 多项式系数
 } Polynomial;
 
 Polynomial polynomials[N];  // 多项式数组
 
-// 计算两个多项式的乘积
-void multiply_polynomials(Polynomial* p1, Polynomial* p2, Polynomial* result) {
-	for (int i = 0; i <= p1->degree + p2->degree; i++) {
-		result->coefficients[i] = 0;
-	}
-
-	for (int i = 0; i <= p1->degree; i++) {
-		for (int j = 0; j <= p2->degree; j++) {
-			result->coefficients[i + j] += p1->coefficients[i] * p2->coefficients[j];
+// 初始化多项式
+void init_polynomials() {
+	srand(time(NULL));
+	for (int i = 0; i < N; i++) {
+		polynomials[i].degree = rand() % M + 1; // 1 到 M 之间的随机次数
+		for (int j = 0; j < polynomials[i].degree; j++) {
+			polynomials[i].coeffs[j] = rand() % 10; // 随机初始化系数
+		}
+		for (int j = polynomials[i].degree; j < M; j++) {
+			polynomials[i].coeffs[j] = 0; // 其余系数置为0
 		}
 	}
-
-	result->degree = p1->degree + p2->degree;
 }
 
-// 计算多项式的Groebner基
-void calculate_groebner_basis() {
-#pragma omp parallel
-	{
-		Polynomial result;
-		for (int i = 0; i < N; i++) {
-#pragma omp for
-			for (int j = i + 1; j < N; j++) {
-				multiply_polynomials(&polynomials[i], &polynomials[j], &result);
+// 计算多项式的主项指数
+int leading_exponent(Polynomial p) {
+	for (int i = M - 1; i >= 0; i--) {
+		if (p.coeffs[i] != 0) {
+			return i;
+		}
+	}
+	return -1; // 没有主项
+}
 
-				// 简单示例：将乘积结果与多项式数组中的每一个多项式进行相减
-				for (int k = 0; k < N; k++) {
-					if (k == i || k == j) {
-						continue;
-					}
+// 求多项式最小公倍式
+Polynomial lcm(Polynomial p, Polynomial q) {
+	Polynomial result;
+	result.degree = (p.degree > q.degree) ? p.degree : q.degree;
+	for (int i = 0; i < result.degree; i++) {
+		result.coeffs[i] = 0;
+	}
 
-#pragma omp critical
-					{
-						for (int l = 0; l <= result.degree; l++) {
-							polynomials[k].coefficients[l] -= result.coefficients[l];
-						}
-					}
-				}
+	for (int i = 0; i < p.degree; i++) {
+		result.coeffs[i] += p.coeffs[i];
+	}
+
+	for (int i = 0; i < q.degree; i++) {
+		result.coeffs[i] += q.coeffs[i];
+	}
+
+	return result;
+}
+
+// 计算 Groebner 基底
+void groebner() {
+	for (int i = 0; i < N; i++) {
+#pragma omp parallel for
+		for (int j = i + 1; j < N; j++) {
+			// 计算 S-多项式
+			Polynomial s_polynomial;
+			s_polynomial = lcm(polynomials[i], polynomials[j]);
+
+			// 计算 S-多项式与每个多项式的余式
+			for (int k = 0; k < N; k++) {
+				// 计算余式
+				// ...
 			}
+
+			// 更新多项式数组
+			// ...
 		}
 	}
 }
 
 int main() {
-	// 初始化多项式数组
-	for (int i = 0; i < N; i++) {
-		polynomials[i].degree = rand() % M;  // 随机生成多项式的最高次数
-		for (int j = 0; j <= polynomials[i].degree; j++) {
-			polynomials[i].coefficients[j] = rand() % 10;  // 随机初始化系数
-		}
-	}
+	init_polynomials();
 
 	double start_time = omp_get_wtime(); // 记录开始时间
 
-	calculate_groebner_basis(); // 计算Groebner基
+	groebner();  // 计算 Groebner 基底
 
 	double end_time = omp_get_wtime(); // 记录结束时间
 

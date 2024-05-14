@@ -1,2 +1,3 @@
 # Pthread-openMP
-nkucs
+
+nkucs并行

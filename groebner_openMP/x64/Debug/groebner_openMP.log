@@ -1,2 +1,3 @@
 ﻿  groebner_openMP.cpp
+D:\2023大二下\并行实验\pthread\Pthread-openMP\groebner_openMP\groebner_openMP.cpp(19,12): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
   groebner_openMP.vcxproj -> D:\2023大二下\并行实验\pthread\Pthread-openMP\groebner_openMP\x64\Debug\groebner_openMP.exe
